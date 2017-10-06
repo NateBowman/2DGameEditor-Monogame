@@ -1,4 +1,4 @@
-﻿#region
+﻿#region Usings
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -6,21 +6,17 @@ using Microsoft.Xna.Framework.Graphics;
 
 #endregion
 
-namespace WinFormsGraphicsDevice
-{
-    public abstract class BaseActor
-    {
+namespace WinFormsGraphicsDevice {
+    public abstract class BaseActor {
         protected Texture2D Texture;
 
         private Vector2 position;
 
-        protected BaseActor()
-        {
+        protected BaseActor() {
             Position = Vector2.Zero;
         }
 
-        protected BaseActor(ContentManager contentManager, string assetName, Vector2 pos) : this()
-        {
+        protected BaseActor(ContentManager contentManager, string assetName, Vector2 pos) : this() {
             Position = pos;
 
             // Virtual member call in constructor
@@ -31,11 +27,9 @@ namespace WinFormsGraphicsDevice
 
         public int Height { get; set; }
 
-        public Vector2 Position
-        {
+        public Vector2 Position {
             get => position;
-            set
-            {
+            set {
                 position = value;
                 UpdateParameters();
             }
@@ -45,18 +39,15 @@ namespace WinFormsGraphicsDevice
         public abstract void Draw(SpriteBatch spriteBatch);
         public abstract void Draw(SpriteBatch spriteBatch, bool drawHighlighted);
 
-        public virtual void LoadAsset(ContentManager contentManager, string assetName)
-        {
+        public virtual void LoadAsset(ContentManager contentManager, string assetName) {
             Texture = contentManager.Load<Texture2D>(assetName);
             UpdateParameters();
         }
 
         public abstract void Update(GameTime gameTime);
 
-        public virtual void UpdateParameters()
-        {
-            if (Texture != null)
-            {
+        public virtual void UpdateParameters() {
+            if (Texture != null) {
                 Width = Texture.Width;
                 Height = Texture.Height;
             }

@@ -1,4 +1,4 @@
-﻿#region
+﻿#region Usings
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -7,37 +7,25 @@ using WinFormsGraphicsDevice;
 
 #endregion
 
-namespace SharedGameData
-{
-    public class Asset : BaseActor
-    {
-        public Asset()
-        {
-        }
+namespace SharedGameData {
+    public class Asset : BaseActor {
+        public Asset() { }
 
-        public Asset(ContentManager contentManager, string assetName, Vector2 pos) : base(contentManager, assetName, pos)
-        {
-        }
+        public Asset(ContentManager contentManager, string assetName, Vector2 pos) : base(contentManager, assetName, pos) { }
 
-        public override void Draw(SpriteBatch spriteBatch)
-        {
+        public override void Draw(SpriteBatch spriteBatch) {
             spriteBatch.Draw(Texture, Position, Color.White);
         }
 
-        public override void Draw(SpriteBatch spriteBatch, bool drawHighlighted)
-        {
-            if (drawHighlighted)
-            {
+        public override void Draw(SpriteBatch spriteBatch, bool drawHighlighted) {
+            if (drawHighlighted) {
                 spriteBatch.Draw(Texture, Position, Color.Red);
             }
-            else
-            {
+            else {
                 Draw(spriteBatch);
             }
         }
 
-        public override void Update(GameTime gameTime)
-        {
-        }
+        public override void Update(GameTime gameTime) { }
     }
 }

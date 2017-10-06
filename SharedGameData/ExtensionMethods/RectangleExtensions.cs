@@ -1,23 +1,18 @@
-﻿#region
+﻿#region Usings
 
 using Microsoft.Xna.Framework;
 using Point = System.Drawing.Point;
 
 #endregion
 
-namespace SharedGameData.ExtensionMethods
-{
-    public static class RectangleExtensions
-    {
-        public static bool Contains(this Rectangle rect, Point p)
-        {
+namespace SharedGameData.ExtensionMethods {
+    public static class RectangleExtensions {
+        public static bool Contains(this Rectangle rect, Point p) {
             return rect.Contains(p.ToXnaPoint());
         }
 
-        public static Vector2[] GetCorners(this Rectangle rect)
-        {
-            return new Vector2[]
-            {
+        public static Vector2[] GetCorners(this Rectangle rect) {
+            return new[] {
                 // Top Left
                 new Vector2(rect.X, rect.Y),
 

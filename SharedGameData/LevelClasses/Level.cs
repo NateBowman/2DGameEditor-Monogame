@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿#region Usings
+
+using System.Collections.Generic;
 using WinFormsGraphicsDevice;
 
-namespace SharedGameData.LevelClasses
-{
-    public class Level
-    {
-        public List<BaseActor> Assets { get; set; }
+#endregion
 
-        public Level()
-        {
+namespace SharedGameData.LevelClasses {
+    public class Level {
+        public Level() {
             Assets = new List<BaseActor>();
         }
+
+        public List<BaseActor> Assets { get; set; }
     }
 }
