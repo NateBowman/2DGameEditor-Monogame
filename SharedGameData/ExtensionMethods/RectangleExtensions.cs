@@ -25,10 +25,10 @@ namespace SharedGameData.ExtensionMethods
                 new Vector2(rect.X + rect.Width, rect.Y),
 
                 // Bottom Left
-                new Vector2(rect.X, rect.Y + rect.Height),
+                new Vector2(rect.X + rect.Width, rect.Y + rect.Height),
 
                 // Bottom Right
-                new Vector2(rect.X + rect.Width, rect.Y + rect.Height)
+                new Vector2(rect.X, rect.Y + rect.Height)
             };
         }
     }
