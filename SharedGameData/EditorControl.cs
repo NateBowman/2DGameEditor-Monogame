@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharedGameData;
 using SharedGameData.Editor;
 
 #endregion
@@ -27,7 +28,7 @@ namespace WinFormsGraphicsDevice
         {
             var convertedPos = PointToClient(MousePosition);
 
-            var message = $"X: {convertedPos.X} Y: {convertedPos.Y}";
+            var message = $"X: {StaticGlobalInput.currentMouse.X} Y: {StaticGlobalInput.currentMouse.Y}";
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();

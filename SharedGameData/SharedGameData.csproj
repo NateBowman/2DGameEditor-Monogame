@@ -57,10 +57,14 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="GraphicsDeviceService.cs" />
+    <Compile Include="Input\MGForms_MouseInput.cs" />
+    <Compile Include="Input\NativeKeyboardInput.cs" />
     <Compile Include="LevelClasses\Level.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceContainer.cs" />
+    <Compile Include="StaticGlobalInput.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -38,6 +38,9 @@
             this.editorControl1.Size = new System.Drawing.Size(260, 237);
             this.editorControl1.TabIndex = 0;
             this.editorControl1.Text = "editorControl1";
+            this.editorControl1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.editorControl1_MouseDown);
+            this.editorControl1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.editorControl1_MouseMove);
+            this.editorControl1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.editorControl1_MouseUp);
             // 
             // Form1
             // 
