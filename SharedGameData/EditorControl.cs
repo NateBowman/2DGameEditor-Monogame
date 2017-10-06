@@ -1,30 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
+﻿#region
+
+using System;
+using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Color = Microsoft.Xna.Framework.Color;
-using System.Windows.Forms;
+using SharedGameData.Editor;
+
+#endregion
 
 namespace WinFormsGraphicsDevice
 {
     public class EditorControl : GraphicsDeviceControl
     {
-        ContentManager content;
-        Random randomizer;
-        SpriteBatch spriteBatch;
-        SpriteFont spriteFont;
+        private ContentManager content;
+        private Random randomizer;
+        private SpriteBatch spriteBatch;
+        private SpriteFont spriteFont;
+
+        public void Update()
+        {
+        }
+
         protected override void Draw()
         {
+            var convertedPos = PointToClient(MousePosition);
 
-            System.Drawing.Point convertedPos = PointToClient(MousePosition);
-
-            string message = String.Format("X: {0} Y: {1}", convertedPos.X, convertedPos.Y);
+            var message = $"X: {convertedPos.X} Y: {convertedPos.Y}";
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
@@ -37,12 +40,12 @@ namespace WinFormsGraphicsDevice
             //{
             //    OnDraw(this, null);
             //}
-
         }
 
         protected override void Initialize()
         {
             content = new ContentManager(Services, "Content");
+            StaticEditorMode.ContentManager = content;
             spriteBatch = new SpriteBatch(GraphicsDevice);
             spriteFont = content.Load<SpriteFont>("Fonts/hudfont");
 
@@ -54,8 +57,5 @@ namespace WinFormsGraphicsDevice
 
             randomizer = new Random();
         }
-
-        public void Update() { }
-
-        }
+    }
 }
