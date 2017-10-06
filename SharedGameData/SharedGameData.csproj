@@ -53,6 +53,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Editor\StaticEditorMode.cs" />
+    <Compile Include="ExtensionMethods\PointExtensions.cs" />
+    <Compile Include="ExtensionMethods\RectangleExtensions.cs" />
     <Compile Include="GraphicsDeviceControl.cs">
       <SubType>Component</SubType>
     </Compile>
