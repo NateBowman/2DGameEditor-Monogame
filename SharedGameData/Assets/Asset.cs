@@ -3,11 +3,10 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using WinFormsGraphicsDevice;
 
 #endregion
 
-namespace SharedGameData {
+namespace SharedGameData.Assets {
     public class Asset : BaseActor {
         public Asset() { }
 

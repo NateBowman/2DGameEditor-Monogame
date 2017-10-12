@@ -19,9 +19,15 @@ namespace WinFormsGraphicsDevice {
         private SpriteBatch spriteBatch;
         private SpriteFont spriteFont;
 
+        public bool DoNotDraw = false;
+
         public void Update() { }
 
         protected override void Draw() {
+            if (DoNotDraw)
+            {
+                return;
+            }
             var convertedPos = PointToClient(MousePosition);
 
             var message = $"X: {StaticGlobalInput.currentMouse.X} Y: {StaticGlobalInput.currentMouse.Y}";

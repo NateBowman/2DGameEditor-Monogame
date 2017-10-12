@@ -2,8 +2,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 using SharedGameData;
+using SharedGameData.Assets;
 using SharedGameData.Editor;
 using SharedGameData.ExtensionMethods;
 using SharedGameData.LevelClasses;
@@ -107,6 +110,82 @@ namespace GameEditor {
 
         private void UncheckToolStripButtons(Control.ControlCollection controls) {
             btnSelectMode.Checked = btnMoveMode.Checked = btnPlaceMode.Checked = false;
+        }
+
+        private List<Type> GetAssemblyTypesFromType(params Type[] types)
+        {
+            var knownTypes = new List<Type>();
+            foreach (var type in types)
+            {
+                foreach (var t in System.Reflection.Assembly.GetAssembly(type).GetTypes())
+                {
+                    knownTypes.Add(t);
+                }
+            }
+            return knownTypes;
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.Filter = "Xml Files|*.xml";
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    Type[] baseTypes = {typeof(BaseActor), typeof(Level)};
+                    Type[] assemblyTypes = GetAssemblyTypesFromType(baseTypes).ToArray();
+
+                    XmlSerializer x = new XmlSerializer(StaticEditorMode.LevelInstance.GetType(), assemblyTypes);
+
+                    using (System.IO.TextReader reader = new StreamReader(openFileDialog1.FileName))
+                    {
+                        editorControl1.DoNotDraw = true;
+                        StaticEditorMode.LevelInstance = x.Deserialize(reader) as Level;
+
+                        for (var i = 0; i < StaticEditorMode.LevelInstance.Assets.Count; i++)
+                        {
+                            var asset = StaticEditorMode.LevelInstance.Assets[i];
+                            asset.LoadAsset(StaticEditorMode.ContentManager, asset.TextureName);
+                        }
+                        editorControl1.DoNotDraw = false;
+                        MessageBox.Show("Level Loaded!", "Level loaded info box", MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Level Load failed! \n {ex.Message}", "Level loaded info box", MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+                
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            saveFileDialog1.Filter = @"Xml Files|*.xml";
+            saveFileDialog1.AddExtension = true;
+
+            Type[] baseTypes = { typeof(BaseActor), typeof(Level) };
+            Type[] assemblyTypes = GetAssemblyTypesFromType(baseTypes).ToArray();
+
+            try
+            {
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    XmlSerializer x = new XmlSerializer(StaticEditorMode.LevelInstance.GetType(), assemblyTypes);
+                    using (System.IO.TextWriter writer = new StreamWriter(saveFileDialog1.FileName))
+                    {
+                        x.Serialize(writer, StaticEditorMode.LevelInstance);
+                        MessageBox.Show("Save Successful");
+                    }
+                }
+            }
+            catch( Exception ex)
+            {
+                MessageBox.Show($"Level Save failed! \n {ex.Message}", "Level loaded info box", MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
         }
     }
 }

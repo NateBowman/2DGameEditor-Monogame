@@ -47,8 +47,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Asset.cs" />
-    <Compile Include="BaseActor.cs" />
+    <Compile Include="Assets\Asset.cs" />
+    <Compile Include="Assets\BaseActor.cs" />
     <Compile Include="EditorControl.cs">
       <SubType>Component</SubType>
     </Compile>
