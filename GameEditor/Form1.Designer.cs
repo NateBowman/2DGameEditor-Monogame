@@ -159,6 +159,8 @@
             this.editorControl1.Size = new System.Drawing.Size(800, 600);
             this.editorControl1.TabIndex = 0;
             this.editorControl1.Text = "editorControl1";
+            this.editorControl1.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
+            this.editorControl1.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
             this.editorControl1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.editorControl1_MouseDown);
             this.editorControl1.MouseEnter += new System.EventHandler(this.editorControl1_MouseEnter);
             this.editorControl1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.editorControl1_MouseMove);
@@ -166,6 +168,7 @@
             // 
             // Form1
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(979, 668);
@@ -177,6 +180,8 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Form1";
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);

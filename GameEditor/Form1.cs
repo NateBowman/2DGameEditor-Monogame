@@ -1,8 +1,11 @@
 ﻿#region Usings
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -22,6 +25,7 @@ namespace GameEditor {
 
         public Form1() {
             InitializeComponent();
+            AllowDrop = true;
             StaticEditorMode.LevelInstance = new Level();
             objectsUnderCursor = new List<BaseActor>();
             MouseWheel += editorControl1_OnMouseWheel;
@@ -152,30 +156,12 @@ namespace GameEditor {
         private void openToolStripMenuItem_Click(object sender, EventArgs e) {
             openFileDialog1.Filter = "Xml Files|*.xml";
             if (openFileDialog1.ShowDialog() == DialogResult.OK) {
-                try {
-                    Type[] baseTypes = {
-                        typeof(BaseActor),
-                        typeof(Level)
-                    };
 
-                    var assemblyTypes = GetAssemblyTypesFromType(baseTypes).ToArray();
-
-                    var x = new XmlSerializer(StaticEditorMode.LevelInstance.GetType(), assemblyTypes);
-
-                    using (TextReader reader = new StreamReader(openFileDialog1.FileName)) {
-                        editorControl1.DoNotDraw = true;
-                        StaticEditorMode.LevelInstance = x.Deserialize(reader) as Level;
-
-                        foreach (var asset in StaticEditorMode.LevelInstance.Assets) {
-                            asset.LoadAsset(StaticEditorMode.ContentManager, asset.TextureName);
-                        }
-
-                        editorControl1.DoNotDraw = false;
-                        MessageBox.Show("Level Loaded!", "Level loaded info box", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
+                if (LoadLevel(openFileDialog1.FileName)) {
+                    MessageBox.Show("Level Loaded!", "Level loaded info box", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                catch (Exception ex) {
-                    MessageBox.Show($"Level Load failed! \n {ex.Message}", "Level loaded info box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                else {
+                    MessageBox.Show($"Level Load failed!", "Level loaded info box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -233,6 +219,60 @@ namespace GameEditor {
         private void editorControl1_MouseEnter(object sender, EventArgs e)
         {
             editorControl1.Focus();
+        }
+
+        private void Form1_DragDrop(object sender, DragEventArgs e) {
+            var droppedFiles = ((string[]) e.Data.GetData((DataFormats.FileDrop))).ToList();
+
+            if (!droppedFiles.Any()) {
+                return;
+            }
+
+            // Load the first XML of the DnD operation
+            for (var i = 0; i < droppedFiles.Count; i++) {
+                // check for wanted file types
+                if (Path.GetExtension(droppedFiles[i]) == ".xml") {
+                    LoadLevel(droppedFiles[i]);
+
+                    // exit loop
+                    break;
+                }
+            }
+        }
+
+        private bool LoadLevel(string fileName) {
+            try {
+                // load the xml
+                Type[] baseTypes = {
+                    typeof(BaseActor),
+                    typeof(Level)
+                };
+
+                var assemblyTypes = GetAssemblyTypesFromType(baseTypes).ToArray();
+
+                var x = new XmlSerializer(StaticEditorMode.LevelInstance.GetType(), assemblyTypes);
+
+                using (TextReader reader = new StreamReader(fileName)) {
+                    editorControl1.DoNotDraw = true;
+                    StaticEditorMode.LevelInstance = x.Deserialize(reader) as Level;
+
+                    foreach (var asset in StaticEditorMode.LevelInstance.Assets) {
+                        asset.LoadAsset(StaticEditorMode.ContentManager, asset.TextureName);
+                    }
+
+                    editorControl1.DoNotDraw = false;
+                    return true;
+                }
+            }
+            catch (Exception ex) {
+                MessageBox.Show($"{ex.Message}", "File Info Box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            return false;
+        }
+
+        private void Form1_DragEnter(object sender, DragEventArgs e) {
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.All : DragDropEffects.None;
         }
     }
 }
