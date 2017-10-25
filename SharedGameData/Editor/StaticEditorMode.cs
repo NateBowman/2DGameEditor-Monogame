@@ -1,6 +1,7 @@
 ﻿#region Usings
 
 using Microsoft.Xna.Framework.Content;
+using SharedGameData.Assets;
 using SharedGameData.LevelClasses;
 using WinFormsGraphicsDevice;
 

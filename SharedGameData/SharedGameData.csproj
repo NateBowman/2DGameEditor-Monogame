@@ -47,8 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Asset.cs" />
-    <Compile Include="BaseActor.cs" />
+    <Compile Include="Assets\Asset.cs" />
+    <Compile Include="Assets\BaseActor.cs" />
+    <Compile Include="Camera2D\Camera2D.cs" />
     <Compile Include="EditorControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -56,6 +57,7 @@
     <Compile Include="Editor\StaticEditorMode.cs" />
     <Compile Include="ExtensionMethods\PointExtensions.cs" />
     <Compile Include="ExtensionMethods\RectangleExtensions.cs" />
+    <Compile Include="ExtensionMethods\Vector2Extensions.cs" />
     <Compile Include="GraphicsDeviceControl.cs">
       <SubType>Component</SubType>
     </Compile>

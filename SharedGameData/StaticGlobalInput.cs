@@ -1,6 +1,7 @@
 ﻿#region Usings
 
 using System.Windows.Forms;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using SharedGameData.Input;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
@@ -67,6 +68,10 @@ namespace SharedGameData {
 
             currentKeys = KeyboardInputHandler.GetState();
             currentMouse = MouseInputHandler.MouseState;
+        }
+
+        public static Point GetMousePosDelta() {
+            return currentMouse.Position - previousMouse.Position;
         }
     }
 }
