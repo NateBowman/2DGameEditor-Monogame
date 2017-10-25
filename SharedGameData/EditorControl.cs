@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using SharedGameData;
+using SharedGameData.Camera2D;
 using SharedGameData.Editor;
 using SharedGameData.ExtensionMethods;
 
@@ -19,6 +20,13 @@ namespace WinFormsGraphicsDevice {
         private SpriteBatch spriteBatch;
         private SpriteFont spriteFont;
 
+        private Texture2D background;
+        private string localCoords = "";
+        private string worldCoords = "";
+        private string camCoords = "";
+
+        public Camera2D Camera { get; set; }
+
         public bool DoNotDraw = false;
 
         public void Update() { }
@@ -28,30 +36,43 @@ namespace WinFormsGraphicsDevice {
             {
                 return;
             }
-            var convertedPos = PointToClient(MousePosition);
 
-            var message = $"X: {StaticGlobalInput.currentMouse.X} Y: {StaticGlobalInput.currentMouse.Y}";
+            var convertedPos = PointToClient(MousePosition);
+            
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null,Camera.get_Transformation(GraphicsDevice));
+            spriteBatch.Draw(background, Vector2.Zero, Color.White);
 
             foreach (var asset in StaticEditorMode.LevelInstance.Assets) {
-                if (asset == StaticEditorMode.SelectedObject) {
-                    asset.Draw(spriteBatch, true);
-                }
-                else {
-                    asset.Draw(spriteBatch, false);
-                }
+                asset.Draw(spriteBatch, asset == StaticEditorMode.SelectedObject);
+
                 DrawLines(asset.BoundingBox.GetCorners());
             }
-
-            spriteBatch.DrawString(spriteFont, message, Vector2.Zero, Color.White);
+            spriteBatch.End();
+            
+            spriteBatch.Begin();
+            spriteBatch.DrawString(spriteFont, localCoords, Vector2.Zero, Color.Black);
+            spriteBatch.DrawString(spriteFont, worldCoords, new Vector2(0, 20), Color.Black);
+            spriteBatch.DrawString(spriteFont, camCoords, new Vector2(0, 40), Color.Black);
             spriteBatch.End();
 
             //if(OnDraw != null)
             //{
             //    OnDraw(this, null);
             //}
+        }
+
+        public void UpdateCoords(object sender, EventArgs e) {
+            localCoords = $"x: {StaticGlobalInput.currentMouse.X} / y: {StaticGlobalInput.currentMouse.Y}";
+
+            Vector2 transformedMousePos = Vector2.Transform(StaticGlobalInput.currentMouse.Position.ToVector2(),
+                Matrix.Invert(Camera.get_Transformation(GraphicsDevice)));
+
+            worldCoords = $"x: {transformedMousePos.X} / y: {transformedMousePos.Y}";
+
+            camCoords = $"x: {Camera.Pos.X} / y: {Camera.Pos.Y}";
+            
         }
 
         protected override void Initialize() {
@@ -64,6 +85,9 @@ namespace WinFormsGraphicsDevice {
             Application.Idle += delegate { Update(); };
             Application.Idle += delegate { Invalidate(); };
 
+            Camera = new Camera2D {Pos = new Vector2(this.Width / 2, this.Height / 2)};
+            background = content.Load<Texture2D>("Images/ScrollingTexture");
+
             //if (Microsoft.Xna.Framework.Input.Mouse.WindowHandle != this.Handle)
             //    Microsoft.Xna.Framework.Input.Mouse.WindowHandle = this.Handle;
 
@@ -71,7 +95,7 @@ namespace WinFormsGraphicsDevice {
         }
 
         private void DrawLines(Vector2[] lineList) {
-            primitiveBatch.Begin(PrimitiveType.LineList);
+            primitiveBatch.Begin(PrimitiveType.LineList, Camera.get_Transformation(GraphicsDevice));
 
             primitiveBatch.AddVertex(lineList[0], Color.White);
             primitiveBatch.AddVertex(lineList[1], Color.White);

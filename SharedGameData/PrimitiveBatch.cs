@@ -64,6 +64,10 @@ namespace SharedGameData
 
         bool isDisposed = false;
 
+        //CHANGED:
+        //the transformation matrix to apply to the vertices to be drawn, set with the Begin() function
+        Matrix m_tMat = Matrix.Identity;
+
         #endregion
 
         // the constructor creates a new PrimitiveBatch and sets up all of the internals
@@ -105,10 +109,15 @@ namespace SharedGameData
             }
         }
 
+        //CHANGED:
         // Begin is called to tell the PrimitiveBatch what kind of primitives will be
         // drawn, and to prepare the graphics card to render those primitives.
-        public void Begin(PrimitiveType primitiveType)
+        public void Begin(PrimitiveType primitiveType, Matrix? transformationMatrix = null)
         {
+            //CHANGED:
+            if (transformationMatrix != null)
+                m_tMat = transformationMatrix.Value;
+
             if (hasBegun)
             {
                 throw new InvalidOperationException
@@ -193,6 +202,16 @@ namespace SharedGameData
         // buffer.
         private void Flush()
         {
+            //CHANGED:
+            //transform the position off all vertices before drawing to take account for the camera system
+            if (m_tMat != Matrix.Identity)
+            {
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    vertices[i].Position = Vector3.Transform(vertices[i].Position, m_tMat);
+                }
+            }
+
             if (!hasBegun)
             {
                 throw new InvalidOperationException
