@@ -1,21 +1,22 @@
 ﻿#region Usings
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using SharedGameData;
 using SharedGameData.Assets;
 using SharedGameData.Editor;
 using SharedGameData.ExtensionMethods;
 using SharedGameData.LevelClasses;
 using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
+using Point = System.Drawing.Point;
 
 #endregion
 
@@ -30,14 +31,21 @@ namespace GameEditor {
             objectsUnderCursor = new List<BaseActor>();
             MouseWheel += editorControl1_OnMouseWheel;
             editorControl1.MouseMove += editorControl1.UpdateCoords;
+            StaticEditorMode.SelectionChanged += o => propertyGrid1.SelectedObject = o;
 
             hScrollBar1.Minimum = editorControl1.Width / 2;
             hScrollBar1.Maximum = 3000;
             vScrollBar1.Minimum = editorControl1.Height / 2;
             vScrollBar1.Maximum = 3000;
 
-
             StaticGlobalInput.InitialiseInputHandlers(editorControl1);
+        }
+
+        public Point GetMouseVPos() {
+            var transformedMousePos = Vector2.Transform(StaticGlobalInput.currentMouse.Position.ToVector2(),
+                                                        Matrix.Invert(editorControl1.Camera.get_Transformation(editorControl1.GraphicsDevice)));
+
+            return transformedMousePos.ToSystemPoint();
         }
 
         private void btnMoveMode_Click(object sender, EventArgs e) {
@@ -62,7 +70,13 @@ namespace GameEditor {
             StaticGlobalInput.HandleMouseButtons(e, true);
 
             var p = GetMouseVPos();
-            if (!StaticGlobalInput.IsNewLeftClick()) {
+            //if (!StaticGlobalInput.IsNewLeftClick()) {
+            //    return;
+            //}
+
+            // Right click should not place an object
+            if (StaticGlobalInput.IsNewRightClick()) {
+                editorControl1.Camera.Zoom = 1.0f;
                 return;
             }
 
@@ -72,10 +86,39 @@ namespace GameEditor {
                 }
                     break;
                 case EditorMode.AssetPlacement: {
-                    StaticEditorMode.LevelInstance.Assets.Add(new Asset(StaticEditorMode.ContentManager, "Images/icon", p.ToVector2()));
+                    if (IsValidContent(listBox_Assets.SelectedItem.ToString(), typeof(Texture2D))) {
+                        if (listBox_Assets.SelectedItem != null) {
+                            StaticEditorMode.LevelInstance.Assets.Add(new Asset(StaticEditorMode.ContentManager, listBox_Assets.SelectedItem.ToString(), p.ToVector2()));
+                        }
+                    }
+                    else {
+                        MessageBox.Show("This is not a Texture2D asset", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    }
                 }
                     break;
             }
+
+            
+        }
+
+        public bool IsValidContent(string fileToLoad, params Type[] desiredTypes) {
+            object o;
+            try {
+                o = StaticEditorMode.ContentManager.Load<object>(fileToLoad);
+                return desiredTypes.Any(type => o.GetType() == type);
+            }
+            catch (Exception e) {
+                if (e is ContentLoadException) { }
+                else {
+                    throw e;
+                }
+            }
+
+            return false;
+        }
+
+        private void editorControl1_MouseEnter(object sender, EventArgs e) {
+            editorControl1.Focus();
         }
 
         private void editorControl1_MouseMove(object sender, MouseEventArgs e) {
@@ -110,12 +153,11 @@ namespace GameEditor {
             if (StaticGlobalInput.currentMouse.MiddleButton == ButtonState.Pressed) {
                 editorControl1.Camera.Pos -= StaticGlobalInput.GetMousePosDelta().ToVector2();
                 editorControl1.Camera.Pos = Vector2.Clamp(editorControl1.Camera.Pos, new Vector2(hScrollBar1.Minimum, vScrollBar1.Minimum),
-                    new Vector2(hScrollBar1.Maximum, vScrollBar1.Maximum));
+                                                          new Vector2(hScrollBar1.Maximum, vScrollBar1.Maximum));
 
                 hScrollBar1.Value = (int) editorControl1.Camera.Pos.X;
                 vScrollBar1.Value = (int) editorControl1.Camera.Pos.Y;
             }
-
         }
 
         private void editorControl1_MouseUp(object sender, MouseEventArgs e) {
@@ -136,6 +178,29 @@ namespace GameEditor {
             }
         }
 
+        private void Form1_DragDrop(object sender, DragEventArgs e) {
+            var droppedFiles = ((string[]) e.Data.GetData((DataFormats.FileDrop))).ToList();
+
+            if (!droppedFiles.Any()) {
+                return;
+            }
+
+            // Load the first XML of the DnD operation
+            for (var i = 0; i < droppedFiles.Count; i++) {
+                // check for wanted file types
+                if (Path.GetExtension(droppedFiles[i]) == ".xml") {
+                    LoadLevel(droppedFiles[i]);
+
+                    // exit loop
+                    break;
+                }
+            }
+        }
+
+        private void Form1_DragEnter(object sender, DragEventArgs e) {
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.All : DragDropEffects.None;
+        }
+
         private List<Type> GetAssemblyTypesFromType(params Type[] types) {
             var knownTypes = new List<Type>();
             foreach (var type in types) {
@@ -149,14 +214,49 @@ namespace GameEditor {
             return knownTypes;
         }
 
+        private void hScrollBar1_Scroll(object sender, ScrollEventArgs e) {
+            editorControl1.Camera.Pos = new Vector2(hScrollBar1.Value, editorControl1.Camera.Pos.Y);
+            Refresh();
+        }
+
         private bool IsSomethingSelected() {
             return StaticEditorMode.SelectedObject != null;
+        }
+
+        private bool LoadLevel(string fileName) {
+            try {
+                // load the xml
+                Type[] baseTypes = {
+                    typeof(BaseActor),
+                    typeof(Level)
+                };
+
+                var assemblyTypes = GetAssemblyTypesFromType(baseTypes).ToArray();
+
+                var x = new XmlSerializer(StaticEditorMode.LevelInstance.GetType(), assemblyTypes);
+
+                using (TextReader reader = new StreamReader(fileName)) {
+                    editorControl1.DoNotDraw = true;
+                    StaticEditorMode.LevelInstance = x.Deserialize(reader) as Level;
+
+                    foreach (var asset in StaticEditorMode.LevelInstance.Assets) {
+                        asset.LoadAsset(StaticEditorMode.ContentManager, asset.TextureName);
+                    }
+
+                    editorControl1.DoNotDraw = false;
+                    return true;
+                }
+            }
+            catch (Exception ex) {
+                MessageBox.Show($"{ex.Message}", "File Info Box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            return false;
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e) {
             openFileDialog1.Filter = "Xml Files|*.xml";
             if (openFileDialog1.ShowDialog() == DialogResult.OK) {
-
                 if (LoadLevel(openFileDialog1.FileName)) {
                     MessageBox.Show("Level Loaded!", "Level loaded info box", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -194,85 +294,29 @@ namespace GameEditor {
             btnSelectMode.Checked = btnMoveMode.Checked = btnPlaceMode.Checked = false;
         }
 
-        private void vScrollBar1_Scroll(object sender, ScrollEventArgs e)
-        {
+        private void vScrollBar1_Scroll(object sender, ScrollEventArgs e) {
             editorControl1.Camera.Pos = new Vector2(editorControl1.Camera.Pos.X, vScrollBar1.Value);
-            this.Refresh();
+            Refresh();
         }
 
-        private void hScrollBar1_Scroll(object sender, ScrollEventArgs e)
+        private void button_ImportAsset_Click(object sender, EventArgs e)
         {
-            editorControl1.Camera.Pos = new Vector2(hScrollBar1.Value, editorControl1.Camera.Pos.Y);
-            this.Refresh();
+            frm_Import frmImport = new frm_Import();
+            frmImport.ShowDialog();
+            Do_Refresh_XNB_Asset_List();
         }
 
-        public System.Drawing.Point GetMouseVPos() {
-
-            Vector2 transformedMousePos = Vector2.Transform(StaticGlobalInput.currentMouse.Position.ToVector2(),
-                Matrix.Invert(editorControl1.Camera.get_Transformation(editorControl1.GraphicsDevice)));
-
-            return transformedMousePos.ToSystemPoint();
-
-
+        private void Do_Refresh_XNB_Asset_List() {
+            listBox_Assets.Items.Clear();
+            var files = Directory.GetFiles(Path.Combine(Application.StartupPath, "Content"), "*.xnb", SearchOption.TopDirectoryOnly);
+            foreach (var file in files) {
+                listBox_Assets.Items.Add(Path.GetFileNameWithoutExtension(file));
+            }
         }
 
-        private void editorControl1_MouseEnter(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            editorControl1.Focus();
-        }
-
-        private void Form1_DragDrop(object sender, DragEventArgs e) {
-            var droppedFiles = ((string[]) e.Data.GetData((DataFormats.FileDrop))).ToList();
-
-            if (!droppedFiles.Any()) {
-                return;
-            }
-
-            // Load the first XML of the DnD operation
-            for (var i = 0; i < droppedFiles.Count; i++) {
-                // check for wanted file types
-                if (Path.GetExtension(droppedFiles[i]) == ".xml") {
-                    LoadLevel(droppedFiles[i]);
-
-                    // exit loop
-                    break;
-                }
-            }
-        }
-
-        private bool LoadLevel(string fileName) {
-            try {
-                // load the xml
-                Type[] baseTypes = {
-                    typeof(BaseActor),
-                    typeof(Level)
-                };
-
-                var assemblyTypes = GetAssemblyTypesFromType(baseTypes).ToArray();
-
-                var x = new XmlSerializer(StaticEditorMode.LevelInstance.GetType(), assemblyTypes);
-
-                using (TextReader reader = new StreamReader(fileName)) {
-                    editorControl1.DoNotDraw = true;
-                    StaticEditorMode.LevelInstance = x.Deserialize(reader) as Level;
-
-                    foreach (var asset in StaticEditorMode.LevelInstance.Assets) {
-                        asset.LoadAsset(StaticEditorMode.ContentManager, asset.TextureName);
-                    }
-
-                    editorControl1.DoNotDraw = false;
-                    return true;
-                }
-            }
-            catch (Exception ex) {
-                MessageBox.Show($"{ex.Message}", "File Info Box", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-
-            return false;
-        }
-
-        private void Form1_DragEnter(object sender, DragEventArgs e) {
-            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.All : DragDropEffects.None;
+            Do_Refresh_XNB_Asset_List();
         }
     }
 }

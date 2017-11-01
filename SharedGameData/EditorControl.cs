@@ -1,6 +1,8 @@
 ﻿#region
 
 using System;
+using System.Diagnostics;
+using System.Globalization;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -25,11 +27,27 @@ namespace WinFormsGraphicsDevice {
         private string worldCoords = "";
         private string camCoords = "";
 
+        private Stopwatch timer;
+        private TimeSpan lastUpdate;
+        private TimeSpan total;
+        private TimeSpan elapsed;
+        private GameTime gameTime;
+        private float fElapsed = 0.0f;
+
         public Camera2D Camera { get; set; }
 
         public bool DoNotDraw = false;
 
-        public void Update() { }
+        public void Update() {
+            UpdateTime();
+        }
+
+        private void UpdateTime() {
+            total = timer.Elapsed;
+            elapsed = total - lastUpdate;
+            gameTime = new GameTime(total, elapsed, false);
+            lastUpdate = total;
+        }
 
         protected override void Draw() {
             if (DoNotDraw)
@@ -54,7 +72,14 @@ namespace WinFormsGraphicsDevice {
             spriteBatch.Begin();
             spriteBatch.DrawString(spriteFont, localCoords, Vector2.Zero, Color.Black);
             spriteBatch.DrawString(spriteFont, worldCoords, new Vector2(0, 20), Color.Black);
-            spriteBatch.DrawString(spriteFont, camCoords, new Vector2(0, 40), Color.Black);
+            
+            if(gameTime != null)
+            {
+                spriteBatch.DrawString(spriteFont, total.TotalSeconds.ToString(CultureInfo.InvariantCulture), new Vector2(0, 60), Color.Black);
+                spriteBatch.DrawString(spriteFont, elapsed.TotalSeconds.ToString(CultureInfo.InvariantCulture), new Vector2(0, 80), Color.Black);
+                spriteBatch.DrawString(spriteFont, gameTime.ElapsedGameTime.TotalSeconds.ToString(CultureInfo.InvariantCulture), new Vector2(0, 100), Color.Black);
+            }
+
             spriteBatch.End();
 
             //if(OnDraw != null)
@@ -87,6 +112,10 @@ namespace WinFormsGraphicsDevice {
 
             Camera = new Camera2D {Pos = new Vector2(this.Width / 2, this.Height / 2)};
             background = content.Load<Texture2D>("Images/ScrollingTexture");
+
+
+            timer = new Stopwatch();
+            timer.Start();
 
             //if (Microsoft.Xna.Framework.Input.Mouse.WindowHandle != this.Handle)
             //    Microsoft.Xna.Framework.Input.Mouse.WindowHandle = this.Handle;

@@ -55,7 +55,7 @@ namespace SharedGameData {
         }
 
         public static bool IsNewRightClick() {
-            return (previousMouse.LeftButton == ButtonState.Released) && (currentMouse.LeftButton == ButtonState.Pressed);
+            return (previousMouse.RightButton == ButtonState.Released) && (currentMouse.RightButton == ButtonState.Pressed);
         }
 
         public static void UpdateInputStates() {

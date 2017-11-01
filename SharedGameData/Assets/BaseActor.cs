@@ -1,5 +1,6 @@
 ﻿#region Usings
 
+using System.ComponentModel;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -12,6 +13,7 @@ namespace SharedGameData.Assets {
     [System.Xml.Serialization.XmlInclude(typeof(Asset))]
     public abstract class BaseActor {
         [XmlIgnore]
+        [Browsable(true)]
         protected Texture2D Texture;
         public string TextureName { get; set; }
 
@@ -33,6 +35,8 @@ namespace SharedGameData.Assets {
 
         public int Height { get; set; }
 
+        [Category("Positioning Data")]
+        [Description("The Position of the object")]
         public Vector2 Position {
             get => position;
             set {
