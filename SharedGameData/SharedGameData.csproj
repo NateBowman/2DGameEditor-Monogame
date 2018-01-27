@@ -66,6 +66,7 @@
     <Compile Include="Input\NativeKeyboardInput.cs" />
     <Compile Include="LevelClasses\Level.cs" />
     <Compile Include="PrimitiveBatch.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceContainer.cs" />
     <Compile Include="StaticGlobalInput.cs" />

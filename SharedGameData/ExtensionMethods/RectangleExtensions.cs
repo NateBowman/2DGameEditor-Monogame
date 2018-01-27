@@ -1,11 +1,15 @@
 ﻿#region Usings
 
-using Microsoft.Xna.Framework;
-using Point = System.Drawing.Point;
-
 #endregion
 
 namespace SharedGameData.ExtensionMethods {
+    #region Usings
+
+    using Microsoft.Xna.Framework;
+    using Point = System.Drawing.Point;
+
+    #endregion
+
     public static class RectangleExtensions {
         public static bool Contains(this Rectangle rect, Point p) {
             return rect.Contains(p.ToXnaPoint());

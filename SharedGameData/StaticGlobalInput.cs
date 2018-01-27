@@ -1,15 +1,19 @@
 ﻿#region Usings
 
-using System.Windows.Forms;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using SharedGameData.Input;
-using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
-using Keys = Microsoft.Xna.Framework.Input.Keys;
-
 #endregion
 
 namespace SharedGameData {
+    #region Usings
+
+    using System.Windows.Forms;
+    using Input;
+    using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Input;
+    using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
+    using Keys = Microsoft.Xna.Framework.Input.Keys;
+
+    #endregion
+
     public static class StaticGlobalInput {
         public static KeyboardState currentKeys;
         public static MouseState currentMouse;
@@ -19,6 +23,10 @@ namespace SharedGameData {
         private static bool inputHandlersReady;
         public static NativeKeyboardInput KeyboardInputHandler { get; set; }
         public static MGForms_MouseInput MouseInputHandler { get; set; }
+
+        public static Point GetMousePosDelta() {
+            return currentMouse.Position - previousMouse.Position;
+        }
 
         public static void HandleMouseButtons(MouseEventArgs e, bool buttonPressed) {
             MouseInputHandler.HandleMouseButtons(e, buttonPressed);
@@ -68,10 +76,6 @@ namespace SharedGameData {
 
             currentKeys = KeyboardInputHandler.GetState();
             currentMouse = MouseInputHandler.MouseState;
-        }
-
-        public static Point GetMousePosDelta() {
-            return currentMouse.Position - previousMouse.Position;
         }
     }
 }
