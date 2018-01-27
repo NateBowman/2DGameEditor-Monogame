@@ -76,7 +76,7 @@ namespace GameEditor
                     File.Copy(t, targetPlusFilename, true);
                 }
 
-                MessageBox.Show("Done");
+                MessageBox.Show("Import Complete");
 
             }
         }
@@ -125,6 +125,11 @@ namespace GameEditor
 
             output += Environment.NewLine + Environment.NewLine;
             return output;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

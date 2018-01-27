@@ -1,27 +1,36 @@
 ﻿#region Usings
 
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-
 #endregion
 
 namespace SharedGameData.Assets {
+    #region Usings
+
+    using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Content;
+    using Microsoft.Xna.Framework.Graphics;
+
+    #endregion
+
     public class Asset : BaseActor {
         public Asset() { }
 
         public Asset(ContentManager contentManager, string assetName, Vector2 pos) : base(contentManager, assetName, pos) { }
 
         public override void Draw(SpriteBatch spriteBatch) {
-            spriteBatch.Draw(Texture, Position, Color.White);
+            Draw(spriteBatch, Color.White);
         }
+
+        public void Draw(SpriteBatch spriteBatch, Color colour) {
+            spriteBatch.Draw(Texture, Position, null, colour, Rotation, new Vector2(0.5f, 0.5f), Scale, SpriteEffects.None, RealZDepth());
+        }
+
 
         public override void Draw(SpriteBatch spriteBatch, bool drawHighlighted) {
             if (drawHighlighted) {
-                spriteBatch.Draw(Texture, Position, Color.Red);
+                Draw(spriteBatch, Color.Red);
             }
             else {
-                Draw(spriteBatch);
+                Draw(spriteBatch, Color.White);
             }
         }
 

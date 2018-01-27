@@ -19,7 +19,7 @@ namespace SharedGameData.Input
         /// <summary>
         /// Creates a new instance of the keyboard helper.
         /// </summary>
-        /// <param name="focusElement">The element that will be used as the focus point. Only if this element is correctly focused, key events will be registered. It may be required to call <see cref="System.Windows.Input.Keyboard.Focus"/> on this element.</param>
+        /// <param name="focusElement">The element that will be used as the focus point. Only if this element is correctly focused, key events will be registered. It may be required to call <see cref="Keyboard.Focus"/> on this element.</param>
         public NativeKeyboardInput()
         {
      

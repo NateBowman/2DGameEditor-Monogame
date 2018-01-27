@@ -2,6 +2,7 @@
     public enum EditorMode {
         Selectmode,
         MoveAsset,
-        AssetPlacement
+        AssetPlacement,
+        ScaleMode
     }
 }

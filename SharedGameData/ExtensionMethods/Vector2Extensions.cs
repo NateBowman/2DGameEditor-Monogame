@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace SharedGameData.ExtensionMethods {
+    #region Usings
 
-namespace SharedGameData.ExtensionMethods
-{
-    public static class Vector2Extensions
-    {
-        public static System.Drawing.Point ToSystemPoint(this Microsoft.Xna.Framework.Vector2 v2) {
-            return new Point((int)v2.X, (int)v2.Y);
+    using Microsoft.Xna.Framework;
+    using Point = System.Drawing.Point;
+
+    #endregion
+
+    public static class Vector2Extensions {
+        public static Point ToSystemPoint(this Vector2 v2) {
+            return new Point((int) v2.X, (int) v2.Y);
         }
     }
 }

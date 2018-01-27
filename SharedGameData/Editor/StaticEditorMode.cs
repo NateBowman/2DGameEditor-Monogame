@@ -1,13 +1,15 @@
 ﻿#region Usings
 
-using Microsoft.Xna.Framework.Content;
-using SharedGameData.Assets;
-using SharedGameData.LevelClasses;
-using WinFormsGraphicsDevice;
-
 #endregion
 
 namespace SharedGameData.Editor {
+    #region Usings
+
+    using Assets;
+    using LevelClasses;
+    using Microsoft.Xna.Framework.Content;
+
+    #endregion
 
     public delegate void ObjectSelectionChange(object obj);
 
@@ -26,7 +28,22 @@ namespace SharedGameData.Editor {
             set {
                 _selectedObject = value;
                 SelectionChanged?.Invoke(SelectedObject);
+            }
+        }
 
+        public static void RemoveAsset(BaseActor asset) {
+            LevelInstance.Assets.Remove(asset);
+            ValidateSelection();
+        }
+
+        public static void RemoveAssetsWithTextureName(string textureName) {
+            LevelInstance.Assets.RemoveAll(actor => actor.TextureName == textureName);
+            ValidateSelection();
+        }
+
+        private static void ValidateSelection() {
+            if (!LevelInstance.Assets.Contains(SelectedObject)) {
+                SelectedObject = null;
             }
         }
     }
